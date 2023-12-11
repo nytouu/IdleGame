@@ -1,33 +1,49 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ClickManager : MonoBehaviour
 {
 	[SerializeField] private MonsterManager monsters;
-	public bool autoClickEnabled;
+	[SerializeField] private bool autoClickEnabled;
+	[SerializeField] private float clickPower = 2;
+	[SerializeField] private float autoClickPower = 1f;
 	public float delay = 1f;
 
-	private float clickPower = 1;
-	private float autoClickPower = 0f;
+	public TextMeshProUGUI scoreText;
+
+	private float score;
 
     // Start is called before the first frame update
     void Start()
     {
-		StartCoroutine(AutoClick());
+		if (autoClickEnabled){
+			StartCoroutine(AutoClick());
+		}
+		score = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space)) {
-			Debug.Log("clicked");
+			UpdateScore(clickPower);
 		}
     }
 
+	public float UpdateScore(float value){
+		score += value;
+		scoreText.text = score.ToString();
+
+		Debug.Log(score);
+		return score;
+	}
+
 	private IEnumerator AutoClick() {
 		while (autoClickEnabled) {
-			monsters.currentMonster.Attack(clickPower);
+			/* monsters.currentMonster.Attack(autoClickPower); */
+			UpdateScore(autoClickPower);
 			yield return new WaitForSeconds(delay);
 		} 
 		while (!autoClickEnabled) {

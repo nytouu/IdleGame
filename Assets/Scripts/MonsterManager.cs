@@ -9,7 +9,7 @@ public class MonsterManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentMonster = new Monster();
+        /* currentMonster = new Monster(); */
     }
 
     // Update is called once per frame
