@@ -1,22 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Monster : MonoBehaviour
+[CreateAssetMenu(fileName = "Monster", menuName = "Monster", order = 1)]
+public class Monster : ScriptableObject
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-	public void Attack(float power) {
-
-	}
+	public string displayName;
+	public float hp;
+	public Sprite texture;
 }
