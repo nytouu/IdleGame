@@ -28,19 +28,19 @@ public class ClickManager : MonoBehaviour
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
-			UpdateScore(clickPower);
+			UpdateScore(clickPower, true);
 		}
     }
 
-	public void UpdateScore(float value){
+	public void UpdateScore(float value, bool clicked){
 		score += value;
-        monsterManager.Attack(value);
+        monsterManager.Attack(value, clicked);
 		scoreText.text = score.ToString();
 	}
 
 	private IEnumerator AutoClick() {
 		while (autoClickEnabled) {
-			UpdateScore(autoClickPower);
+			UpdateScore(autoClickPower, false);
 			yield return new WaitForSeconds(delay);
 		} 
 		while (!autoClickEnabled) {

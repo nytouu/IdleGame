@@ -9,6 +9,8 @@ public class MonsterManager : MonoBehaviour
 	private Monster currentMonster;
 	private float xp, increment;
 
+	private float counter;
+
 	[SerializeField] Image monsterImage; 
 	[SerializeField] TextMeshProUGUI xpText; 
 	[SerializeField] TextMeshProUGUI monsterText; 
@@ -18,16 +20,34 @@ public class MonsterManager : MonoBehaviour
 	public Color firstColor;
 	public Color secondColor;
 
+	public float fadeDuration;
+
     // Start is called before the first frame update
     void Start()
     {
 		Spawn();
 		xp = 0;
 		increment = 1;
+		counter = 0f;
     }
 
-	public void Attack(float power) {
+	void Update(){
+		if (counter > fadeDuration) {
+			// reset
+			counter = 0f;
+		} else if (counter <= fadeDuration && counter != 0f) {
+			monsterImage.color = Color.Lerp(Color.red, Color.white, Time.time * fadeDuration);
+			counter += Time.deltaTime;
+		}
+	}
+
+	public void Attack(float power, bool shouldAnimate) {
 		if (currentMonster) {
+			if (shouldAnimate){
+				StartAnimateDamage();
+			}
+
+			Debug.Log(counter);
 			currentMonster.hp -= power;
 			if (currentMonster.hp <= 0) {
 				UpdateXp(xp += increment);
@@ -64,5 +84,10 @@ public class MonsterManager : MonoBehaviour
 		} else if (xp > 100){
 			mainCamera.backgroundColor = firstColor;
 		}
+	}
+
+	private void StartAnimateDamage(){
+		counter = 0.01f;
+		monsterImage.color = Color.red;
 	}
 }
