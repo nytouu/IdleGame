@@ -7,14 +7,14 @@ using UnityEngine.UI;
 public class MonsterManager : MonoBehaviour
 {
 	private Monster currentMonster;
-	private float xp, increment;
-
-	private float counter;
+	private float xp, increment, maxHp, startTime, fade;
 
 	[SerializeField] Image monsterImage; 
 	[SerializeField] TextMeshProUGUI xpText; 
 	[SerializeField] TextMeshProUGUI monsterText; 
 	[SerializeField] Camera mainCamera;
+	[SerializeField] Slider slider;
+	[SerializeField] ParticleSystem particles;
 
 	public List<Monster> monsterList;
 	public Color firstColor;
@@ -28,16 +28,18 @@ public class MonsterManager : MonoBehaviour
 		Spawn();
 		xp = 0;
 		increment = 1;
-		counter = 0f;
+		fade = 0;
     }
 
 	void Update(){
-		if (counter > fadeDuration) {
-			// reset
-			counter = 0f;
-		} else if (counter <= fadeDuration && counter != 0f) {
-			monsterImage.color = Color.Lerp(Color.red, Color.white, Time.time * fadeDuration);
-			counter += Time.deltaTime;
+		if (fade >= 1) {
+			fade = 0f;
+			if (particles.isPlaying) 
+				particles.Stop();
+			monsterImage.color = Color.white;
+		} else if (fade <= 1 && fade > 0) {
+			fade += Time.deltaTime / fadeDuration;
+			monsterImage.color = Color.Lerp(Color.red, Color.white, fade);
 		}
 	}
 
@@ -47,8 +49,9 @@ public class MonsterManager : MonoBehaviour
 				StartAnimateDamage();
 			}
 
-			Debug.Log(counter);
 			currentMonster.hp -= power;
+			slider.value += (power * 100f / maxHp) / 100f;
+
 			if (currentMonster.hp <= 0) {
 				UpdateXp(xp += increment);
 				increment *= 1.5f;
@@ -68,6 +71,9 @@ public class MonsterManager : MonoBehaviour
 
 		monsterText.text = selected.displayName;
 		monsterImage.sprite = selected.texture;
+
+		maxHp = selected.hp;
+		slider.value = 0f;
 	}
 
 	public Monster GetFromList(){
@@ -77,17 +83,20 @@ public class MonsterManager : MonoBehaviour
 
 	private void UpdateXp(float value){
 		xp += value;
-		xpText.text = xp.ToString();
+		xpText.text = "XP: " + xp.ToString();
 
-		if (xp > 1000){
-			mainCamera.backgroundColor = secondColor;
-		} else if (xp > 100){
-			mainCamera.backgroundColor = firstColor;
-		}
-	}
+        mainCamera.backgroundColor = xp switch
+        {
+			>= 1000f => secondColor,
+			>= 100f => firstColor,
+			_ => firstColor
+        };
+    }
 
 	private void StartAnimateDamage(){
-		counter = 0.01f;
+		startTime = Time.time;
 		monsterImage.color = Color.red;
+		fade = 0.01f;
+		particles.Play();
 	}
 }

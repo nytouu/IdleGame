@@ -6,9 +6,12 @@ using TMPro;
 public class ClickManager : MonoBehaviour
 {
 	[SerializeField] private bool autoClickEnabled;
-	[SerializeField] private float clickPower = 2;
-	[SerializeField] private float autoClickPower = 1f;
 	public float delay = 1f;
+
+	public float clickPower = 2f;
+	public float autoClickPower = 1f;
+	public float explosionPower = 10f;
+	public float poisonPower = 1f;
 
 	public TextMeshProUGUI scoreText;
     public MonsterManager monsterManager;
@@ -27,15 +30,17 @@ public class ClickManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
-			UpdateScore(clickPower, true);
-		}
+
     }
+
+	public void OnClick(){
+		UpdateScore(clickPower, true);
+	}
 
 	public void UpdateScore(float value, bool clicked){
 		score += value;
         monsterManager.Attack(value, clicked);
-		scoreText.text = score.ToString();
+		scoreText.text = "Clicks :" + score.ToString();
 	}
 
 	private IEnumerator AutoClick() {
