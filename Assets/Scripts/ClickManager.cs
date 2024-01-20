@@ -16,6 +16,8 @@ public class ClickManager : MonoBehaviour
 	public TextMeshProUGUI scoreText;
     public MonsterManager monsterManager;
 
+	private AudioSource audioSource;
+
 	private float score;
 
     // Start is called before the first frame update
@@ -25,12 +27,8 @@ public class ClickManager : MonoBehaviour
 			StartCoroutine(AutoClick());
 		}
 		score = 0;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-
+		audioSource = GetComponent<AudioSource>();
     }
 
 	public void OnClick(){
@@ -38,9 +36,12 @@ public class ClickManager : MonoBehaviour
 	}
 
 	public void UpdateScore(float value, bool clicked){
-		score += value;
+		if (clicked) {
+			score += value;
+			audioSource.Play();
+		}
         monsterManager.Attack(value, clicked);
-		scoreText.text = "Clicks :" + score.ToString();
+		scoreText.text = "Score :" + score.ToString();
 	}
 
 	private IEnumerator AutoClick() {

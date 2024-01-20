@@ -16,6 +16,7 @@ public class SpecialAttacks : MonoBehaviour
 
 	public float explosionCooldown;
 	private bool explosionEnabled;
+	private float nextExplosion;
 
     // Start is called before the first frame update
     void Start()
@@ -29,14 +30,19 @@ public class SpecialAttacks : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if (Time.time > nextExplosion){
+			explosionButton.interactable = true;
+		}
 
     }
 
 	public void Explosion(){
-		clickManager.UpdateScore(clickManager.explosionPower, true);
-		explosionEnabled = true;
-		explosionButton.interactable = false;
-		StartCoroutine(ExplosionCoroutine());
+		if (Time.time > nextExplosion){
+			clickManager.UpdateScore(clickManager.explosionPower, true);
+			explosionEnabled = true;
+			explosionButton.interactable = false;
+			nextExplosion = Time.time + explosionCooldown;
+		}
 	}
 
 	public void Poison(){
@@ -56,19 +62,6 @@ public class SpecialAttacks : MonoBehaviour
 				poisonEnabled = false;
 			}
 			yield return new WaitForSeconds(0.5f);
-		}
-	}
-
-	private IEnumerator ExplosionCoroutine() {
-		while (explosionEnabled) {
-			clickManager.UpdateScore(clickManager.explosionPower, true);
-
-			if (explosionEnabled){
-				// FIXME: la ça marche pas
-				explosionEnabled = false;
-				explosionButton.interactable = true;
-			}
-			yield return new WaitForSeconds(explosionCooldown);
 		}
 	}
 }

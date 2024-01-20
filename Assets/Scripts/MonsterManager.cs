@@ -9,18 +9,24 @@ public class MonsterManager : MonoBehaviour
 	private Monster currentMonster;
 	private float xp, increment, maxHp, startTime, fade;
 
+	[SerializeField] Shop shop;
 	[SerializeField] Image monsterImage; 
 	[SerializeField] TextMeshProUGUI xpText; 
 	[SerializeField] TextMeshProUGUI monsterText; 
+	[SerializeField] TextMeshProUGUI hpText; 
 	[SerializeField] Camera mainCamera;
 	[SerializeField] Slider slider;
 	[SerializeField] ParticleSystem particles;
+	[SerializeField] TextMeshProUGUI moneyText;
+
+	public CameraShake cameraShake;
 
 	public List<Monster> monsterList;
-	public Color firstColor;
-	public Color secondColor;
+	public Color firstColor, secondColor, thirdColor;
 
 	public float fadeDuration;
+
+	private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +35,8 @@ public class MonsterManager : MonoBehaviour
 		xp = 0;
 		increment = 1;
 		fade = 0;
+
+		audioSource = GetComponent<AudioSource>();
     }
 
 	void Update(){
@@ -51,11 +59,17 @@ public class MonsterManager : MonoBehaviour
 
 			currentMonster.hp -= power;
 			slider.value += (power * 100f / maxHp) / 100f;
+			hpText.text = currentMonster.hp + "/" + maxHp;
 
 			if (currentMonster.hp <= 0) {
-				UpdateXp(xp += increment);
-				increment *= 1.5f;
+				shop.money += (int)maxHp;
+				moneyText.text = "Gold: " + shop.money;
 
+				UpdateXp(xp += increment);
+				increment += 1.5f;
+
+				audioSource.Play();
+				StartCoroutine(cameraShake.Shake(0.15f, 0.1f));
 				Spawn();
 			}
 		}
@@ -65,15 +79,16 @@ public class MonsterManager : MonoBehaviour
 		Monster selected = GetFromList();
 		currentMonster = ScriptableObject.CreateInstance<Monster>();
 
-		currentMonster.hp = selected.hp;
+		currentMonster.hp = selected.hp + xp;
 		currentMonster.texture = selected.texture;
 		currentMonster.displayName = selected.displayName;
 
 		monsterText.text = selected.displayName;
 		monsterImage.sprite = selected.texture;
 
-		maxHp = selected.hp;
+		maxHp = selected.hp + xp;
 		slider.value = 0f;
+		hpText.text = currentMonster.hp + "/" + maxHp;
 	}
 
 	public Monster GetFromList(){
@@ -87,6 +102,7 @@ public class MonsterManager : MonoBehaviour
 
         mainCamera.backgroundColor = xp switch
         {
+			>= 10000f => thirdColor,
 			>= 1000f => secondColor,
 			>= 100f => firstColor,
 			_ => firstColor
